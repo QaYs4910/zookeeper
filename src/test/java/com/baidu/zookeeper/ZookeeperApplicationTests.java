@@ -94,4 +94,46 @@ class ZookeeperApplicationTests {
     public void delete() throws InterruptedException, KeeperException {
         zooKeeper.delete("/app1",-1);
     }
+
+    /**
+     * 子节点发生变化后的监控
+     * @throws InterruptedException
+     * @throws KeeperException
+     */
+    @Test
+    public void nodeChildrenChange() throws InterruptedException, KeeperException {
+        List<String> childrens = zooKeeper.getChildren("/app1", new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                System.out.println(watchedEvent.getType());
+            }
+        });
+        for (String children: childrens) {
+            System.out.println(children);
+        }
+        Thread.sleep(Integer.MAX_VALUE);
+    }
+
+    /**
+     * 监听节点内容变更
+     *  watchedEvent 对象监听的节点类型
+     *  None(-1),
+     *             NodeCreated(1),
+     *             NodeDeleted(2),
+     *             NodeDataChanged(3),
+     *             NodeChildrenChanged(4),
+     *             DataWatchRemoved(5),
+     *             ChildWatchRemoved(6);
+     */
+    @Test
+    public void nodeDataChange() throws InterruptedException, KeeperException {
+        byte[] data = zooKeeper.getData("/app1/innerapp1", new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                System.out.println(watchedEvent.getType());
+            }
+        }, null);
+        System.out.println(new String(data));
+        Thread.sleep(Integer.MAX_VALUE);
+    }
  }
